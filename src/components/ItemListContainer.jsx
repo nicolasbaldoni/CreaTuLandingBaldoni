@@ -3,24 +3,24 @@ import ItemList from './ItemList'
 import Row from 'react-bootstrap/Row'
 import Container from 'react-bootstrap/Container'
 import { useParams } from 'react-router-dom'
+import { getProductos, getProductosFromCategory } from '../firebase/db'
+import ProductosLoading  from './loading/Loading'
 
 const ItemListContainer = () => {
 
     const [items, setItems] = useState([])
-
+    const [loading, setLoading] = useState(true)
     const { id } = useParams();
 
     useEffect(() => {
 
-        if(id) {
-            fetch(`https://fakestoreapi.com/products/category/${id}`)
-            .then(res => res.json())
-            .then(json => setItems(json))
-        } else {
-            fetch('https://fakestoreapi.com/products')
-            .then(res=>res.json())
-            .then(json => setItems(json))
+        const getProductosServer = async () => {
+            const products = await getProductosFromCategory(id)
+            setItems(products)
+            setLoading(false)
         }
+
+        getProductosServer()
         
     }, [id])
 
@@ -28,7 +28,7 @@ const ItemListContainer = () => {
     return (
         <Container fluid style={{padding: '7%'}}>
             <Row xs={1} md={2} className="g-4">
-                <ItemList productos={items} />
+                {loading ? <ProductosLoading /> : <ItemList productos={items} />}                
             </Row>
         </Container>
     )

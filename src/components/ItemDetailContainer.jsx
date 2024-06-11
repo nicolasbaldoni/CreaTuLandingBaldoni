@@ -1,26 +1,34 @@
-import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import ItemDetail from '././ItemDetail'
-import { Container } from "react-bootstrap";
+import { Container } from 'react-bootstrap'
+import { getProducto } from '../firebase/db'
+import LoadingItemDetail from './loading/LoadingItemDetail'
 
 function ItemDetailContainer() {
 
-    const [detail, setDetail] = useState();
-
-    const { idProd } = useParams();
+    const [detail, setDetail] = useState()
+    const [loading, setLoading] = useState(true)
+    const { idProd } = useParams()
 
     useEffect(() => {
-        fetch(`https://fakestoreapi.com/products/${idProd}`)
-            .then(res => res.json())
-            .then(json => setDetail(json))
+        
+        const getProdServer = async () => {
+            const prod = await getProducto(idProd)
+            setDetail(prod)
+            setLoading(false)
+        }
+
+        getProdServer()
+
     }, [idProd])
 
     return (
         <Container style={{paddingTop: '7%'}}>
-            <ItemDetail itemDetalle={detail} />
+            {loading ? <LoadingItemDetail /> : <ItemDetail itemDetalle={detail} />}
         </Container>
     )
 
 }
 
-export default ItemDetailContainer;
+export default ItemDetailContainer
